@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Plant Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+  </head>
+  <body>
+    <!-- Include Chart.js and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Add a dropdown for selecting the number of data points -->
+    <select id="data-points-selector">
+      <option value="10">Last 10 Entries</option>
+      <option value="100" selected="selected">Last 100 Entries</option>
+      <option value="500">Last 500 Entries</option>
+      <!-- Add more options as needed -->
+    </select>
+    
+    <!-- Create a canvas element for the chart -->    
+    <canvas id="myChart" width="400" height="400" class="chart-container"></canvas>
+
+    <script>
+      let chart; // Declare a variable to hold the chart instance
+
+      // Fetch data from the API based on the selected number of data points
+      function fetchDataAndRenderChart() {
+        const numDataPoints = parseInt(document.getElementById('data-points-selector').value);
+        
+        // Fetch data from the API
+        axios.get(`/api/data?limit=${numDataPoints}`)
+          .then(response => {
+            const jsonData = response.data;
+
+            // Extract temperature and moisture data into separate arrays
+            const temperatureData = jsonData.data.map(item => item.temp).reverse();
+            const moistureData = jsonData.data.map(item => item.moist).reverse();
+            const t2Data = jsonData.data.map(item => item.temp2).reverse();
+            const m2Data = jsonData.data.map(item => item.moist2).reverse();
+            const labels = jsonData.data.map(item => item.time).reverse();
+           
+            // Use the data variable defined earlier
+            const chartData = {
+              labels: labels,
+              datasets: [
+                {
+                  label: 'Plant 1 Temp (°F)',
+                  data: temperatureData,
+                  yAxisID: 'y1', // Assign to the default Y-axis
+                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  borderWidth: 1,
+                },
+                {
+                  label: 'Plant 1 Moisture Level',
+                  data: moistureData,
+                  yAxisID: 'y', // Assign to the secondary Y-axis
+                  backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  borderWidth: 1,
+                },
+                {
+                  label: 'Plant 2 Temp (°F)',
+                  data: t2Data,
+                  yAxisID: 'y1', // Assign to the default Y-axis
+                  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                  borderColor: 'rgba(0, 0, 0, 1)',
+                  borderWidth: 1,
+                },
+                {
+                  label: 'Plant 2 Moisture Level',
+                  data: m2Data,
+                  yAxisID: 'y', // Assign to the secondary Y-axis
+                  backgroundColor: 'rgba(60, 200, 0, 0.2)',
+                  borderColor: 'rgba(60, 200, 0, 1)',
+                  borderWidth: 1,
+                },
+              ],
+            };
+
+            // If the chart instance exists, destroy it to clear the canvas
+            if (chart) {
+              chart.destroy();
+            }
+
+            // Create and render the chart
+            const ctx = document.getElementById('myChart').getContext('2d');
+            chart = new Chart(ctx, {
+              type: 'line',
+              data: chartData, // Use chartData, not data
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: false,
+                    position: 'left',
+                    title: {
+                      display: true,
+                      text: 'Moisture Level',
+                    },
+                    min: 600, //set minimum moisture level
+                  },
+                  y1: {
+                    beginAtZero: false,
+                    position: 'right',
+                    title: {
+                      display: true,
+                      text: 'Temperature (°F)',
+                    },
+                    min: 40, // set min temp
+                  },
+                },
+              },
+              // Additional chart options can be configured here
+            });
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+          });
+      }
+
+      // Add an event listener to the dropdown
+      document.getElementById('data-points-selector').addEventListener('change', function () {
+        fetchDataAndRenderChart();
+      });
+
+      // Initial data fetch and chart rendering
+      fetchDataAndRenderChart();
+    </script>
+  </body>
+</html>
+

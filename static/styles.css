@@ -1,0 +1,21 @@
+/* Reset default margin and padding for HTML and body */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure the content doesn't exceed the viewport height */
+.chart-container {
+  max-height: 80vh; /* Adjust the maximum height as needed */
+  overflow: auto; /* Add a vertical scrollbar if the content exceeds the container's height */
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+  .chart-container {
+    max-height: 50vh; /* Adjust for smaller screens */
+    max-width: 50vw;
+    overflow: auto;
+  }
+}

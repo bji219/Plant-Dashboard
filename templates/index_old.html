@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Plant Dashboard</title>
+  </head>
+  <body>
+    <!-- Include Chart.js and other dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Create a canvas element for the chart -->
+    <canvas id="myChart" width="400" height="400"></canvas>
+
+    <!-- Add a dropdown for selecting the number of data points -->
+    <select id="data-points-selector">
+      <option value="10">Last 10 Entries</option>
+      <option value="100">Last 100 Entries</option>
+      <option value="500">Last 500 Entries</option>
+      <!-- Add more options as needed -->
+    </select>
+
+    <script>
+      // Fetch data from the API based on the selected number of data points
+      function fetchDataAndRenderChart() {
+        const numDataPoints = parseInt(document.getElementById('data-points-selector').value);
+      
+      // Fetch data from the API
+      axios.get('/api/data?limit=${numDataPoints}')
+        .then(response => {
+          const jsonData = response.data;
+          
+          // Log the data 
+          console.log('JSON Data:', jsonData);
+
+          // Extract temperature and moisture data into separate arrays
+          const temperatureData = jsonData.data.map(item => item.temp);
+          const moistureData = jsonData.data.map(item => item.moist);
+          const labels = jsonData.data.map(item => item.time);
+
+          // Now, you have separate arrays for temperature and moisture data
+          console.log("Temperature Data:", temperatureData);
+          console.log("Moisture Data:", moistureData);
+
+          // Use the data variable defined earlier
+          const chartData = {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Temperature (°F)',
+                data: temperatureData,
+                yAxisID: 'y1', // Assign to the default Y-axis
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+              },
+              {
+                label: 'Moisture Level',
+                data: moistureData,
+                yAxisID: 'y', // Assign to the secondary Y-axis
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+              },
+            ],
+          };
+
+          // Create and render the chart
+          const ctx = document.getElementById('myChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: chartData, // Use chartData, not data
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  position: 'left',
+                  title: {
+                    display: true,
+                    text: 'Moisture Level',
+                  },
+                },
+                y1: {
+                  beginAtZero: true,
+                  position: 'right',
+                  title: {
+                    display: true,
+                    text: 'Temperature (°F)',
+                  },
+                },
+              },
+              // Additional chart options can be configured here
+            },
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    </script>
+  </body>
+</html>
+
