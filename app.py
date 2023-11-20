@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, Response, jsonify  # Import render_template and jsonify
 from supabase_py import create_client, Client
 
-url: str = 'https://hlmyhwperjzxvtfhdbkw.supabase.co'
-key: str = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbXlod3Blcmp6eHZ0ZmhkYmt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYxMTk0NTcsImV4cCI6MjAxMTY5NTQ1N30.bHzzlJycNv_PWk_s7_PEvYY3HPqRbf83TrnklLAVMYk'
+url: str = 'YOUR-URL-HERE'
+key: str = 'YOUR-KEY-HERE'
 supabase: Client = create_client(url, key)
 
 table = 'time_temp_humidity_1'
